@@ -1,0 +1,96 @@
+#include <stdio.h>
+
+int cost[20][20];
+int assigned[20] = {0};
+
+int assign[20];       // Current assignment
+int bestAssign[20];   // Best assignment
+
+int n, minCost = 999;
+
+void assignment(int person, int currCost)
+{
+    int job, i, j;
+    int bound = currCost;
+
+    // Calculate Lower Bound
+    for(i = person; i < n; i++)
+    {
+        int min = 999;
+
+        for(j = 0; j < n; j++)
+        {
+            if(assigned[j] == 0 && cost[i][j] < min)
+            {
+                min = cost[i][j];
+            }
+        }
+
+        bound += min;
+    }
+
+    // Branch and Bound
+    if(bound >= minCost)
+    {
+        return;
+    }
+
+    // All persons assigned
+    if(person == n)
+    {
+        minCost = currCost;
+
+        for(i = 0; i < n; i++)
+        {
+            bestAssign[i] = assign[i];
+        }
+
+        return;
+    }
+
+    // Try every unassigned job
+    for(job = 0; job < n; job++)
+    {
+        if(assigned[job] == 0)
+        {
+            assigned[job] = 1;
+            assign[person] = job;
+
+            assignment(person + 1,
+                       currCost + cost[person][job]);
+
+            assigned[job] = 0;
+        }
+    }
+}
+
+int main()
+{
+    int i, j;
+
+    printf("Enter number of persons/jobs: ");
+    scanf("%d", &n);
+
+    printf("Enter cost matrix:\n");
+
+    for(i = 0; i < n; i++)
+    {
+        for(j = 0; j < n; j++)
+        {
+            scanf("%d", &cost[i][j]);
+        }
+    }
+
+    assignment(0, 0);
+
+    printf("\nMinimum Cost = %d\n", minCost);
+
+    printf("\nOptimal Assignment:\n");
+
+    for(i = 0; i < n; i++)
+    {
+        printf("Person %d --> Job %d\n", i, bestAssign[i]);
+    }
+
+    return 0;
+}
